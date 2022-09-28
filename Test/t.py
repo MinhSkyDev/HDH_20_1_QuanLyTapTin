@@ -11,7 +11,7 @@ oneSectorSize = 512  # Kích thước của một Sector
 def readOneSector(filename):
     filePath = r"\\.\{0}".format(filename)
     disk_fd = os.open(filePath, os.O_RDONLY | os.O_BINARY)
-    data = os.read(disk_fd, oneSectorSize)
+    data = os.read(disk_fd)
     # print(data)
     return data
 
@@ -37,15 +37,17 @@ def readPartition(MBR):
 
     for i in range(0, len(MBR)):
         if i >= 446 and i <= 509:
-            partition.append(int(MBR[i], base=10))
+            partition.append(MBR[i])
     listPartition = []
     temp = []
-    print(len(partition))
+    count = 0
     for i in range(0, len(partition)):
-        if i % 16 == 0 and i != 0:
+        count += 1
+        temp.append(partition[i])
+        if count == 16:
             listPartition.append(temp)
             temp = []
-        temp.append(partition[i])
+            count = 0
 
     return listPartition
 
@@ -54,6 +56,7 @@ def main():
     diskName = "D:"
     data = readOneSector(diskName)
     MBR = indexMBR(data)
+    # print(MBR)
     partition = readPartition(MBR)
     print(partition)
 
