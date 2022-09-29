@@ -6,8 +6,8 @@ oneSectorSize = 512 ##Kích thước của một Sector
 ## Output trả về là dạng mảng
 def readOneSector(filename):
     filePath = r"\\.\{0}".format(filename)
-    disk_fd = os.open( filePath, os.O_RDONLY | os.O_BINARY)
-    data = os.read(disk_fd, oneSectorSize)
+    disk_fd = open( filePath, mode = "rb")
+    data = disk_fd.read(oneSectorSize)
     ##print(data)
     return data
 
@@ -21,7 +21,7 @@ def indexMBR(data):
         print(data_toHex_remove0x, end = " ")
 
 def main():
-    diskName = "E:"
+    diskName = "PhysicalDrive1"
     data = readOneSector(diskName)
     indexMBR(data)
 
