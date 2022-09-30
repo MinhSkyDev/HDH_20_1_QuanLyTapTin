@@ -2,6 +2,7 @@
 Ham chuyen tu HEX dang Little Endian sang DEC:
 Vi du: 00 02 => 02 00(h) => 512(d)
 Input: Hex Array (little Endian). Ex: h = ["00", "02"]
+Output: Ket qua thap phan
 """
 
 
