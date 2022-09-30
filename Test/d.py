@@ -22,3 +22,12 @@ def toBigIndian(data, start, end):
         if i <= end and i >= start:
             temp += e
     return temp
+
+
+def findAddressBootsector(data):
+    temp = ""
+    for i, e in reversed((list(enumerate(data)))):
+        if i <= 11 and i >= 8:
+            temp += e
+    res = (int(temp, 16))
+    return hex(res*512)
