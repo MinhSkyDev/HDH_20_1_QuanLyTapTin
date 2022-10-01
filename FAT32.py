@@ -1,66 +1,44 @@
-"""
-Ham chuyen tu HEX dang Little Endian sang DEC:
-Vi du: 00 02 => 02 00(h) => 512(d)
-Input: Hex Array (little Endian). Ex: h = ["00", "02"]
-Output: Ket qua thap phan
-"""
-
-
 from tracemalloc import start
-
-
-def convertHexLittleEndianStringToInt(hexArray):
-    hexArray.reverse()
-    hexStr = ""
-    for i in range(len(hexArray)):
-        hexStr += hexArray[i]
-    i = int(hexStr, 16)
-    return i
-
-
-'''Ham chuyen tu mot mang Hex sang chuoi ASCII String
-Input: Mang Hex: Ex: H = ['20', '32', '48']
-Output: Chuoi ASCII. Ex: FAT32
-'''
-
-
-def convertHexStringToASCIIString(hexArray):
-    ASCII_String = ""
-    for i in hexArray:
-        ASCII_String += chr(int(i, 16))
-    return ASCII_String
-
+from converter import *
+import os
 
 '''Class co chuc nang doc bang phan vung'''
-
-
-class Partition:
+class FAT32:
     # Khoi tao. Truyen vao 2 tham so:
     # 1. Ten o dia
     # 2. Sector bat dau cua phan vung
     def __init__(self, diskName, startSector):
         # Doc du lieu Partition vao data
-        def readOneSector(diskName, i):
-            filePath = r"\\.\{0}".format(diskName)
-            with open(filePath, 'rb') as disk_fd:
-                disk_fd.seek(i * 512)
-                data = disk_fd.read(512)
-                hexData = []
-                for i in range(0, 512):
-                    # giá trị data[i] hiện tại ở dạng số từ 0 -> 255, convert về hex
-                    data_toHex = hex(data[i])
-                    # trả về ở lệnh trên ở dạng 0xMãHex, lệnh này để lọc bớt đi 0x
-                    data_toHex_remove0x = data_toHex[2:]
-                    if (len(data_toHex_remove0x) != 2):
-                        data_toHex_remove0x = "0" + data_toHex_remove0x
-                    hexData.append(data_toHex_remove0x)
-            return hexData
-        self.data = readOneSector(diskName, startSector)
+        self.data = self.__getBootSector(diskName, startSector)
         self.getPartitionInfo()
 
-    # ham doc cac thong so quan trong cua phan vung
+    def __init__(self,startSector):
+        diskName = "PhysicalDrive1"
+        self.data = self.__getBootSector(diskName, startSector)
+        self.__getPartitionInfo()
 
-    def getPartitionInfo(self):
+
+    # Hàm đọc các thông số quan trọng của phân vùng
+    def __getBootSector(self,diskName,startSector):
+        filePath = r"\\.\{0}".format(diskName)
+        disk_fd = open(filePath, mode = "rb")
+        startByte = startSector * 512 ## Phải chuyển từ sector sang byte
+        disk_fd.seek(startByte)
+        self.size = 512
+        data = disk_fd.read(self.size)
+        hexData = []
+        for i in range(0, 512):
+            # giá trị data[i] hiện tại ở dạng số từ 0 -> 255, convert về hex
+            data_toHex = hex(data[i])
+            # trả về ở lệnh trên ở dạng 0xMãHex, lệnh này để lọc bớt đi 0x
+            data_toHex_remove0x = data_toHex[2:]
+            if (len(data_toHex_remove0x) != 2):
+                data_toHex_remove0x = "0" + data_toHex_remove0x
+            hexData.append(data_toHex_remove0x)
+        return hexData
+
+
+    def __getPartitionInfo(self):
         # So Byte tren 1 sector
         self.bytesPerSector = convertHexLittleEndianStringToInt(
             self.data[11:13])
