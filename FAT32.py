@@ -2,7 +2,7 @@ from tracemalloc import start
 from converter import *
 import os
 
-'''Class co chuc nang doc bang phan vung'''
+'''Class có chức năng đọc bảng phân vùng BootSector của FAT32'''
 class FAT32:
     # Khoi tao. Truyen vao 2 tham so:
     # 1. Ten o dia
@@ -12,6 +12,8 @@ class FAT32:
         self.data = self.__getBootSector(diskName, startSector)
         self.getPartitionInfo()
 
+    # Khoi tao overloading. Truyen vao 1 tham so:
+    # 2. Sector bắt đầu của phân vùng, tên ổ đĩa mặc định là PhysicalDrive1 (USB)
     def __init__(self,startSector):
         diskName = "PhysicalDrive1"
         self.data = self.__getBootSector(diskName, startSector)
@@ -65,5 +67,5 @@ class FAT32:
         print('So bang FAT:', self.numOfFATs)
         print('Kich thuoc volume:', self.totalSectors*512/(1024**3), 'GB')
         print('So Sector moi bang FAT:', self.sectorsPerFAT)
-        print('Dia chi bat dau cua Cluster:', self.rootClusterAddress)
+        print('Dia chi bat dau cua RDET:', self.rootClusterAddress)
         print('Loai FAT:', self.typeOfFAT)

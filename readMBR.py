@@ -22,8 +22,14 @@ class MasterBootRecord:
         self.startSectors = []
         self.__setStartSector()
 
+        ##Dùng để xác định loại ổ đĩa
+        self.partitionType_dictionary = {
+            "0B": "FAT32",
+            "07": "NTFS",
+            "00": "Empty"
+        }
 
-    ##Getter của Class
+    '''---------------GETTER--------------- '''
     def getSize(self):
         return self.size
     def getMBR(self):
@@ -38,13 +44,27 @@ class MasterBootRecord:
     def getStartSector_Partition4(self):
         return self.startSectors[3]
 
+    ##Các hàm này dùng để xác định loại ổ đĩa cho từng phân vùng
+    ##Trả về chuỗi tương ứng với loại ổ đĩa
+    ##Ví dụ phân vùng 1 là loại FAT32 => Trả về FAT32
+    def getStatusPartition1(self):
+        return self.__getStatus(0)
+    def getStatusPartition2(self):
+        return self.__getStatus(1)
+    def getStatusPartition3(self):
+        return self.__getStatus(2)
+    def getStatusPartition4(self):
+        return self.__getStatus(3)
 
 
-    ####################Private Methods#########################
+
+    '''---------------PRIVATE METHOD--------------- '''
     def __standardizeMBR(self,data):
         for i in range(0,self.size):
             data_toHex = hex(data[i]) ##giá trị data[i] hiện tại ở dạng số từ 0 -> 255, convert về hex
             data_toHex_standardize = data_toHex[2:] ##trả về ở lệnh trên ở dạng 0xMãHex, lệnh này để lọc bớt đi 0x
+            if (len(data_toHex_standardize) != 2):
+                data_toHex_standardize = "0" + data_toHex_standardize
             self.data.append(str(data_toHex_standardize))
 
     ##Lấy được địa chỉ 4 sector bắt đầu của phân vùng
@@ -67,8 +87,16 @@ class MasterBootRecord:
             print("Sector bắt đầu của phân vùng ",i,": ",startSector)
             self.startSectors.append(startSector)
 
+    def __getStatus(self,partition_id):
+        id = self.partitions[partition_id][0]
+        status = self.partitionType_dictionary[id]
+        return status
 
-    ####################Public Methods#########################
+
+
+
+    '''---------------PUBLIC METHOD--------------- '''
+    ##Duyệt xem MBR có gì
     def indexMBR(self):
         for i in range(0,self.size):
             if(i % 16 == 0):
