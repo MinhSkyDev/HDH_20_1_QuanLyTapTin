@@ -1,0 +1,155 @@
+from re import subn
+from run import *
+from MBR import *
+
+
+def ReadPartition(diskName, startSector):
+
+    print('-----------Thông tin của phân vùng: -------------')
+    FAT32 = READING_FAT32(diskName, startSector)
+    # Xuat cay thu muc goc
+    print('-----------------------------------------')
+    print('Xuất cây thư mục gốc: \n')
+    root = FAT32.aaa(FAT32.Folder_File_Name, 1, [], 0, 1)
+    for item in root:
+        if (item['rootId'] == 1):
+            if 'submainName' in item:
+                print(item['submainName'])
+            else:
+                print(item['name'])
+    stack = []
+    rootId = 1
+    while (True):
+        checkExist = False
+        print()
+        print('1. Đọc tệp tin/ thư mục con')
+        print('2. Quay lại thư mục cha')
+        print('3. Thoát')
+        select = int(input("Mời bạn chọn: "))
+        if (select == 1):
+            subName = str(input("Nhập tệp tin/ thư mục cần đọc:"))
+            print('-----------------------------------------')
+            if (len(stack) == 0):
+                subList = root
+            elif ('submainName' in stack[-1]):
+                subList = FAT32.printFileInFolder(stack[-1]['submainName'])
+            else:
+                subList = FAT32.printFileInFolder(stack[-1]['name'])
+            for item in subList:
+                # Nếu tồn tại thư mục / tệp tin
+                if ('submainName' in item):
+                    if item['submainName'] == subName:
+                        stack.append(item)
+                        rootId += 1
+                        checkExist = True
+                        if item['type'] == 'Archive':
+                            tail = subName[len(subName) - 3:len(subName)]
+                            if tail == 'TXT' or tail == 'txt':
+                                print('Nội dung File ' + subName + ':\n')
+                                print(FAT32.getContentFile(subName, subList))
+                            else:
+                                print(
+                                    'Không phải file text. Hãy dùng phần mềm khác để đọc!')
+                        elif item['type'] == 'Subdirectory':
+                            print('Thư mục hiện tại: \n')
+                            content = FAT32.printFileInFolder(subName)
+                            for i in content:
+                                if 'submainName' in i:
+                                    print(i['submainName'])
+                                else:
+                                    print(i['name'])
+                else:
+                    if item['name'] == subName:
+                        stack.append(item)
+                        rootId += 1
+                        checkExist = True
+                        if item['type'] == 'Archive':
+                            tail = subName[len(subName) - 3:len(subName)]
+                            if tail == 'TXT' or tail == 'txt':
+                                print('Nội dung File ' + subName + ':\n')
+                                print(FAT32.getContentFile(subName, subList))
+                            else:
+                                print(
+                                    'Không phải file text. Hãy dùng phần mềm khác để đọc!')
+                        elif item['type'] == 'Subdirectory':
+                            print('Thư mục hiện tại: \n')
+                            content = FAT32.printFileInFolder(subName)
+                            for i in content:
+                                if 'submainName' in i:
+                                    print(i['submainName'])
+                                else:
+                                    print(i['name'])
+            if (checkExist == False):
+                print('Không tồn tại thư mục/ tệp tin này!')
+                # Nếu là tệp tin thì xuất thông tin tệp tin ra
+        elif (select == 2):
+            print('-----------------------------------------')
+            print('Thư mục hiện tại: \n')
+            if (len(stack) == 0):
+                subList = root
+                rootId = 1
+            else:
+                stack.pop()
+                if (len(stack) == 0):
+                    subList = root
+                    rootId = 1
+                else:
+                    rootId = rootId - 1
+                    if 'submainName' in stack[-1]:
+                        subList = FAT32.printFileInFolder(
+                            stack[-1]['submainName'])
+                    else:
+                        subList = FAT32.printFileInFolder(stack[-1]['name'])
+            for item in subList:
+                if item['rootId'] == rootId:
+                    # Nếu tồn tại thư mục / tệp tin
+                    if ('submainName' in item):
+                        print(item['submainName'])
+                    else:
+                        print(item['name'])
+        elif (select == 3):
+            break
+        else:
+            print('Không tồn tại lựa chọn này!')
+
+
+def Main():
+    print('Đọc MBR của ổ đĩa (Physical Drive 1): ')
+    diskName = "PhysicalDrive2"
+    MBR = MasterBootRecord(diskName)
+    MBR.printPartitionInfo()
+    startSector = 0
+    while True:
+        select = int(
+            input('Hãy chọn phân vùng cần đọc thông tin (Nhập -1 để thoát): '))
+        if (select == 1):
+            if (MBR.getStartSector_Partition1() == 0):
+                print('Không đọc được phân vùng này!')
+            else:
+                startSector = MBR.getStartSector_Partition1()
+                ReadPartition(diskName, startSector)
+        elif (select == 2):
+            if (MBR.getStartSector_Partition2() == 0):
+                print('Không đọc được phân vùng này!')
+            else:
+                startSector = MBR.getStartSector_Partition2()
+                ReadPartition(diskName, startSector)
+        elif (select == 3):
+            if (MBR.getStartSector_Partition3() == 0):
+                print('Không đọc được phân vùng này!')
+            else:
+                startSector = MBR.getStartSector_Partition3()
+                ReadPartition(diskName, startSector)
+        elif (select == 4):
+            if (MBR.getStartSector_Partition4() == 0):
+                print('Không đọc được phân vùng này!')
+            else:
+                startSector = MBR.getStartSector_Partition4()
+                ReadPartition(diskName, startSector)
+        elif (select == -1):
+            break
+        else:
+            print('Không tồn tại phân vùng này!')
+
+
+Main()
