@@ -1,18 +1,32 @@
 from converter import *
-
+from MFT import*
 
 class NTFS:
 
     def __init__(self,startSector):
-        self.driveName = "PhysicalDrive0"
+        self.driveName = "PhysicalDrive1"
         self.sizeVBR = 512
         self.VBR = []
         self.__getVBR(startSector)
+
+
+        self.sectorsPerCluster = int(self.VBR[13],16)
         self.MFT_start_cluster = self.__getStart_MFT_Cluter()
+        self.MFT_Entry_size = 2**(self.__getMFT_Entry_size())
+
+        self.sectorLogicalDisk_start = convertHexLittleEndianStringToInt(self.VBR[28:32])
+
+        self.MFT = MFT(self.MFT_start_cluster*self.sectorsPerCluster + self.sectorLogicalDisk_start,
+                       self.MFT_Entry_size,
+                       512, self.sectorsPerCluster,self.driveName)
+
+
+
 
     '''---------------GETTER--------------- '''
     def getMFTStartCluster(self):
-        return self.MFT_start_cluster
+        return self.MFT_start_cluster * self.sectorsPerCluster + self.sectorLogicalDisk_start
+
 
     '''---------------PRIVATE METHOD--------------- '''
 
@@ -23,6 +37,7 @@ class NTFS:
         f_read.seek(startByte_VBR)
         data = f_read.read(512)
         self.__standardizeVBR(data)
+        f_read.close()
 
     def __standardizeVBR(self,data):
         for i in range(0,self.sizeVBR):
@@ -33,12 +48,29 @@ class NTFS:
             self.VBR.append(str(data_toHex_standardize))
 
     def __getStart_MFT_Cluter(self):
-        startVector = convertHexLittleEndianStringToInt(self.VBR[48:57])
-        return startVector
+        startSector = convertHexLittleEndianStringToInt(self.VBR[48:56])
+        return startSector
+
+    def __getMFT_Entry_size(self):
+        MFT_entry_size_byte_hex = self.VBR[64]
+        result = convertHexToTwoComplementBinary(MFT_entry_size_byte_hex)
+        return result
 
 
 
     '''---------------PUBLIC METHOD--------------- '''
 
+
+    '''
+    Mục đích hàm này sinh ra là để debug
+    '''
     def printBPB(self):
+        print("Sectors per cluster", self.sectorsPerCluster)
+        print("Cluster bắt đầu của MFT: ",self.MFT_start_cluster)
+        print("Sector bắt đầu của ổ đĩa logic: ", self.sectorLogicalDisk_start)
+        print("Số byte một Entry: ",self.MFT_Entry_size)
+        print("Sector bắt đầu của MFT", self.MFT_start_cluster)
+        print("Entry size: ",self.MFT_Entry_size)
+
+    def printFolderTree():
         pass

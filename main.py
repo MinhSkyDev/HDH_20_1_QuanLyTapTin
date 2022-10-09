@@ -10,7 +10,6 @@ def main():
     ##partition1.printPartitionInfo()
 
     partition1 = NTFS(mbr.getStartSector_Partition1())
-    print(mbr.getStatusPartition1())
     partition1.printBPB()
 
 if __name__ == "__main__":
