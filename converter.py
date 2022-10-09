@@ -7,6 +7,8 @@ Vi du: 00 02 => 02 00(h) => 512(d)
 Input: Hex Array (little Endian). Ex: h = ["00", "02"]
 Output: Ket qua thap phan
 """
+
+
 def convertHexLittleEndianStringToInt(hexArray):
     hexArray.reverse()
     hexStr = ""
@@ -20,6 +22,8 @@ def convertHexLittleEndianStringToInt(hexArray):
 Input: Mang Hex: Ex: H = ['20', '32', '48']
 Output: Chuoi ASCII. Ex: FAT32
 '''
+
+
 def convertHexStringToASCIIString(hexArray):
     ASCII_String = ""
     for i in hexArray:
