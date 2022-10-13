@@ -1,17 +1,4 @@
-def convertHexLittleEndianStringToInt(hexArray):
-    hexArray.reverse()
-    hexStr = ""
-    for i in range(len(hexArray)):
-        hexStr += hexArray[i]
-    i = int(hexStr, 16)
-    return i
-
-
-def convertHexStringToASCIIString(hexArray):
-    ASCII_String = ""
-    for i in hexArray:
-        ASCII_String += chr(int(i, 16))
-    return ASCII_String
+from converter import *
 
 
 class FAT32Table:
@@ -22,6 +9,7 @@ class FAT32Table:
     def __init__(self, diskName, startSector):
         # Doc du lieu Partition vao data
         self.data = self.readFullFATTable(diskName, startSector)
+        self.diskName = diskName
 
     def readOneSector(self, diskName, i):
         filePath = r"\\.\{0}".format(diskName)
@@ -90,16 +78,24 @@ class FAT32Table:
 
     # Ham nay co chuc nang lay noi dung file
     # va tra ve duoi dang chuoi (string)
-    def getSectorListFromClusterList(self, clusterList, partitionFirstSector, reservedSectors, numOfFATs,
-                                     sectorsPerFAT, sectorsPerCluster):
+    def getContentFromClusterList(self, clusterList, partitionFirstSector, reservedSectors, numOfFATs,
+                                  sectorsPerFAT, sectorsPerCluster):
         list = []
         rootIndex = partitionFirstSector + reservedSectors + sectorsPerFAT * numOfFATs
         for cluster in clusterList:
             index = rootIndex + sectorsPerCluster * (cluster - 2)
-            list.append(self.readOneSector('D:', index))
+            for i in range(sectorsPerCluster):
+                list.append(self.readOneSector(self.diskName, index + i))
+        return list
+
+    def getASCIIContent(self, list):
         content = ""
         for sector in list:
             temp = convertHexStringToASCIIString(sector)
             content += temp
-        print(content)
         return content
+
+
+# a = FAT32Table('D:', 2664)
+# data = a.getContentFromClusterList(a.getClusterList(6), 0, 2664, 2, 15052, 32)
+# print(data)

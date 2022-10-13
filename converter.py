@@ -50,3 +50,9 @@ def convertHexToTwoComplementBinary(hex):
     if(result <0):
         result *=-1
     return result
+
+
+def removeBlankSpace(test_list):
+
+    while("" in test_list):
+        test_list.remove("")

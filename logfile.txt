@@ -1,0 +1,27 @@
+
+Microsoft DiskPart version 10.0.19041.964
+
+Copyright (C) Microsoft Corporation.
+On computer: LAPTOP-29BEVQTF
+
+Disk 1 is now the selected disk.
+
+USB FLASH DRIVE USB Device
+Disk ID: 354289BF
+Type   : USB
+Status : Online
+Path   : 0
+Target : 0
+LUN ID : 0
+Location Path : UNAVAILABLE
+Current Read-only State : No
+Read-only  : No
+Boot Disk  : No
+Pagefile Disk  : No
+Hibernation File Disk  : No
+Crashdump Disk  : No
+Clustered Disk  : No
+
+  Volume ###  Ltr  Label        Fs     Type        Size     Status     Info
+  ----------  ---  -----------  -----  ----------  -------  ---------  --------
+  Volume 5     E                NTFS   Removable   7386 MB  Healthy            

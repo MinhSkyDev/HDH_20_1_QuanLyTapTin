@@ -1,5 +1,5 @@
 import os
-from converter import *
+from convert import *
 # Class này có constructor nhận vào fileName và đọc lên MBR tương ứng
 
 
@@ -7,10 +7,12 @@ class MasterBootRecord:
 
     # Hàm khởi tạo sẽ có 1 tham số
     # 1: Tên ổ đĩa, nếu không truyền tham số thì sẽ mặc định là truyền địa chỉ usb
-    def __init__(self, fileName="PhysicalDrive1"):
+    def __init__(self, fileName):
         self.size = 512
-        filePath = r"\\.\{0}".format(fileName)
+        filePath = fileName
         disk_fd = open(filePath, mode="rb")
+        print(fileName)
+        disk_fd.close()
         data = disk_fd.read(self.size)
         self.data = []
         # Chuẩn hóa dữ liệu về dạng chuẩn thông thường
@@ -29,6 +31,7 @@ class MasterBootRecord:
             "0B": "FAT32",
             "07": "NTFS",
             "00": "Empty"
+
         }
 
     '''---------------GETTER--------------- '''
@@ -89,8 +92,6 @@ class MasterBootRecord:
         self.partitions.append(partition_2)
         self.partitions.append(partition_3)
         self.partitions.append(partition_4)
-        for i in range(0, 4):
-            print("Thông tin phân vùng ", i, ": ", self.partitions[i])
 
     # Tính toán sector bắt đầu của từng phân vùng
     def __setStartSector(self):
@@ -114,3 +115,17 @@ class MasterBootRecord:
                 print("\n")
             else:
                 print(self.data[i], end=" ")
+
+    def printPartitionInfo(self):
+        for i in range(0, 4):
+            print('---Thông tin phân vùng', i + 1, ': ---')
+            print('Trạng thái: ', end='')
+            if (self.partitions[i][0] == '00'):
+                print('Non-Bootable')
+            else:
+                print('Bootable')
+            print('Loại phân vùng: ' + self.partitions[i][4])
+            print('Sector bắt đầu:', self.startSectors[i])
+            print('Tổng số Sector:', convertHexLittleEndianStringToInt(
+                self.partitions[i][12:16]))
+            print()
