@@ -1,4 +1,4 @@
-from convert import *
+from converter import *
 
 '''Class co chuc nang doc bang phan vung'''
 

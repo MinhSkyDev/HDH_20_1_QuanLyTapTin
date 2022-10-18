@@ -99,7 +99,7 @@ class MFT:
             if i % 2 == 1:
                 result.append(entry[file_name_start+i])
 
-        print(result)
+        ##print(result)
         return convertHexStringToASCIIString(result)
 
 
@@ -222,14 +222,14 @@ class MFT:
         ##Nhiệm vụ của những dòng code dưới đây chỉ là để lấy số file mà $MFT có - Quang Minh
         MFT_firstEntry_standardInformation = self.__getStartAttribute_startByte()
 
-        print("Vị trí bắt đầu của attribute: ",MFT_firstEntry_standardInformation)
+        ##Vị trí bắt đầu của attribute: MFT_firstEntry_standardInformation
 
         MFT_firstEntry_standardInformation_len = convertHexLittleEndianStringToInt(self.MFT_first_entry[
             MFT_firstEntry_standardInformation+4 : MFT_firstEntry_standardInformation +8
         ])
 
         MFT_firstEntry_FileName = MFT_firstEntry_standardInformation + MFT_firstEntry_standardInformation_len
-        print("Vị trí bắt đầu của attribute filename:",MFT_firstEntry_FileName)
+        ##Vị trí bắt đầu của attribute filename: MFT_firstEntry_FileName
 
         MFT_firstEntry_FileName_len = convertHexLittleEndianStringToInt(self.MFT_first_entry[
             MFT_firstEntry_FileName+4 : MFT_firstEntry_FileName +8
@@ -237,13 +237,13 @@ class MFT:
 
         MFT_firstEntry_Data = MFT_firstEntry_FileName + MFT_firstEntry_FileName_len
 
-        print("Vị trí bắt đầu của attribute data: ",MFT_firstEntry_Data)
+        ##Vị trí bắt đầu của attribute data: MFT_firstEntry_Data)
 
         len_MFT = convertHexLittleEndianStringToInt(self.MFT_first_entry[
             MFT_firstEntry_Data + 24 : MFT_firstEntry_Data + 32
         ])
 
-        print("Kích thước của MFT là: ",len_MFT)
+        ##Kích thước của MFT là: len_MFT)
         ##Sau khi có kích thước của MFT theo dạng số entry mà MFT có sở hữu thì chúng ta sẽ lần lượt đọc qua các entry đó:
         self.__getAllEntryInfo(len_MFT)
 
@@ -291,6 +291,7 @@ class MFT:
 
             if(current == 5):
                 print("Root")
+
             if current in self.id_File:
                 tuple_fileName_data = self.id_File[current]
                 print(tuple_fileName_data[0])
@@ -305,6 +306,19 @@ class MFT:
 
 
     def indexFolder(self):
+
+        extension_dict = {
+        "pdf" : "Xin mời sử dụng Foxit Reader để đọc file pdf",
+        "cpp" : "Xin mời sử dụng Visual Studio để đọc file cpp",
+        "png" : "Xin mời sử dụng windows image viewer để đọc file png",
+        "jpeg" : "Xin mời sử dụng windows image viewer để đọc file jpeg",
+        "JPG" : "Xin mời sử dụng windows image viewer để đọc file jpg",
+        "docx" : "Xin mời sử dụng Microsoft Word để đọc file docx",
+        "py" : "Xin mời sử dụng visual code để mở mã nguồn python",
+        "cs" : "Xin mời sử dụng visual studio để mở mã nguồn C#",
+        "java" : "Xin mời sử dụng Eclipse để mở mã nguồn java"
+        }
+
         while(True):
             os.system('cls')
             current_id = self.path_st[-1]
@@ -334,30 +348,47 @@ class MFT:
             path = self.__getCurrentPathFolder()
             choice_temp =input(path)
             choice = choice_temp.split(' ')
-
             if(choice[0] == 'cd'):
                 if(choice[1] == '..'):
-                    self.path_st.pop()
+                    if(len(self.path_st) > 1):
+                        self.path_st.pop()
+                    else:
+                        input("Không thể dùng lệnh này để quay lại được ! bấm nút bất kỳ và sau đó thực hiện các lệnh khác \n")
                 else:
-                    str_pathName = ""
-                    for i in range(1,len(choice)):
-                        if(i == len(choice)-1):
-                            str_pathName += choice[i]
-                        else:
-                            str_pathName += choice[i] +' '
-                    self.path_st.append(self.fileName_id[str_pathName])
-                    print(str_pathName)
+                    try:
+                        str_pathName = ""
+                        for i in range(1,len(choice)):
+                            if(i == len(choice)-1):
+                                str_pathName += choice[i]
+                            else:
+                                str_pathName += choice[i] +' '
+                        self.path_st.append(self.fileName_id[str_pathName])
+                        print(str_pathName)
+                    except:
+                        print("Nhập sai tên thư mục")
             elif (choice[0] == 'exit'):
                 break
-            elif(choice[0] in self.fileName_id):
-                id = self.fileName_id[choice[0]]
+            elif(choice[0] in self.fileName_id or choice_temp in self.fileName_id):
+                if(choice[0] in self.fileName_id):
+                    id = self.fileName_id[choice[0]]
+                elif(choice_temp in self.fileName_id):
+                    id = self.fileName_id[choice_temp]
                 name = self.id_File[id][0]
                 data = self.id_File[id][1]
-                if(data == ''):
+
+                name_split = name.split('.')
+                if(len(name_split) <= 1):
                     print("Tập tin này có thể là thư mục hoặc không đọc được")
-                else:
+                elif(name_split[1] == 'txt'):
                     print("Dữ liệu của tập tin {0} là:\n{1}".format(name,data))
-                    input("\nBấm Enter để tiếp tục")
+                else:
+                    extension = name_split[1]
+                    if (extension in extension_dict):
+                        message = extension_dict[name_split[1]]
+                        print(message)
+                    else:
+                        print("Unknown extension!")
+                input("\nBấm Enter để tiếp tục")
             else:
                 input("Nhập sai, bấm enter để reset: ")
 

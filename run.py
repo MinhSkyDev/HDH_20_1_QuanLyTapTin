@@ -3,7 +3,7 @@ from FAT32 import *
 from RDET import *
 from Partition import *
 from SDET import *
-from convert import *
+from converter import *
 
 idx = 1
 

@@ -18,7 +18,8 @@ class NTFS:
 
         self.sectorLogicalDisk_start = convertHexLittleEndianStringToInt(self.VBR[28:32])
 
-        self.MFT = MFT(self.MFT_start_cluster*self.sectorsPerCluster + self.sectorLogicalDisk_start,
+        MFT_start_byte = self.MFT_start_cluster*self.sectorsPerCluster + self.sectorLogicalDisk_start
+        self.MFT = MFT(MFT_start_byte,
                        self.MFT_Entry_size,
                        512, self.sectorsPerCluster,self.driveName)
 
@@ -73,7 +74,6 @@ class NTFS:
         print("Sector bắt đầu của ổ đĩa logic: ", self.sectorLogicalDisk_start)
         print("Số byte một Entry: ",self.MFT_Entry_size)
         print("Sector bắt đầu của MFT", self.MFT_start_cluster)
-        print("Entry size: ",self.MFT_Entry_size)
         input("Bấm enter để về màn hình menu: ")
 
     def printFolderTree(self):

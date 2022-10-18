@@ -114,3 +114,17 @@ class MasterBootRecord:
                 print("\n")
             else:
                 print(self.data[i], end=" ")
+
+    def printPartitionInfo(self):
+        for i in range(0, 4):
+            print('---Thông tin phân vùng', i + 1, ': ---')
+            print('Trạng thái: ', end='')
+            if (self.partitions[i][0] == '00'):
+                print('Non-Bootable')
+            else:
+                print('Bootable')
+            print('Loại phân vùng: ' + self.partitions[i][4])
+            print('Sector bắt đầu:', self.startSectors[i])
+            print('Tổng số Sector:', convertHexLittleEndianStringToInt(
+                self.partitions[i][12:16]))
+            print()

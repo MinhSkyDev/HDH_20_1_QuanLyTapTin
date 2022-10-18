@@ -2,7 +2,7 @@ from tracemalloc import start
 import numpy as np
 import json
 from Partition import *
-from convert import *
+from converter import *
 
 
 sizeOfEntry = 32

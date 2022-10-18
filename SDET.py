@@ -1,5 +1,5 @@
 import imp
-from convert import *
+from converter import *
 
 
 class SDET:
